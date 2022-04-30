@@ -14,6 +14,8 @@ this file and include it in basic-server.js so that it actually works.
 
 var data = [];
 
+const urlParser = require('url');
+
 var defaultCorsHeaders = {
   'access-control-allow-origin': '*',
   'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -41,6 +43,8 @@ var requestHandler = function(request, response) {
     response.writeHead(statusCode, headers);
     response.end(JSON.stringify(data));
 
+    //response.end(JSON.stringify({results: data})); //From solution video
+
   } else if (request.method === 'DELETE' && request.url === '/classes/messages') {
     headers['Content-Type'] = 'application/json';
     statusCode = 202;
@@ -61,11 +65,12 @@ var requestHandler = function(request, response) {
   } else if (request.method === 'POST' && request.url === '/classes/messages') {
     let body = [];
     headers['Content-Type'] = 'application/json';
-    request.on('data', (chunk) => {
+    request.on('data', (chunk) => { //Buffer; node array-like datatype
       body.push(chunk);
     }).on('end', () => {
       //Parse body which is in JSON format and then adds to data array
       body = JSON.parse(body);
+      //body.objectId = data.length;//from solution video
       data.push(body);
     });
     var statusCode = 201;
@@ -82,53 +87,53 @@ var requestHandler = function(request, response) {
 
 exports.requestHandler = requestHandler;
 // Request and Response come from node's http module.
-  //
-  // They include information about both the incoming request, such as
-  // headers and URL, and about the outgoing response, such as its status
-  // and content.
-  //
-  // Documentation for both request and response can be found in the HTTP section at
-  // http://nodejs.org/documentation/api/
+//
+// They include information about both the incoming request, such as
+// headers and URL, and about the outgoing response, such as its status
+// and content.
+//
+// Documentation for both request and response can be found in the HTTP section at
+// http://nodejs.org/documentation/api/
 
-  // Do some basic logging.
-  //
-  // Adding more logging to your server can be an easy way to get passive
-  // debugging help, but you should always be careful about leaving stray
-  // console.logs in your code.
-  //If the request is a 'GET' and url matches
-  // if (request.method === 'POST' && request.url === '/classes/messages') {
+// Do some basic logging.
+//
+// Adding more logging to your server can be an easy way to get passive
+// debugging help, but you should always be careful about leaving stray
+// console.logs in your code.
+//If the request is a 'GET' and url matches
+// if (request.method === 'POST' && request.url === '/classes/messages') {
 
-  //   //parsesdata from request
+//   //parsesdata from request
 
 //set response code
-  //add data storage to response
-  //changel content type to app/json
-  //else If the request is a 'POST' and url matches
-  //set response
-  //add data to a data array
-  //set content type = test/plain'
+//add data storage to response
+//changel content type to app/json
+//else If the request is a 'POST' and url matches
+//set response
+//add data to a data array
+//set content type = test/plain'
 
-  // See the note below about CORS headers.
-
-
-
-  // Tell the client we are sending them plain text.
-  //
-  // You will need to change this if you are sending something
-  // other than plain text, like JSON or HTML.
+// See the note below about CORS headers.
 
 
 
-  // .writeHead() writes to the request line and headers of the response,
-  // which includes the status and all headers.
+// Tell the client we are sending them plain text.
+//
+// You will need to change this if you are sending something
+// other than plain text, like JSON or HTML.
 
-  // Make sure to always call response.end() - Node may not send
-  // anything back to the client until you do. The string you pass to
-  // response.end() will be the body of the response - i.e. what shows
-  // up in the browser.
-  //
-  // Calling .end "flushes" the response's internal buffer, forcing
-  // node to actually send all the data over to the client.
+
+
+// .writeHead() writes to the request line and headers of the response,
+// which includes the status and all headers.
+
+// Make sure to always call response.end() - Node may not send
+// anything back to the client until you do. The string you pass to
+// response.end() will be the body of the response - i.e. what shows
+// up in the browser.
+//
+// Calling .end "flushes" the response's internal buffer, forcing
+// node to actually send all the data over to the client.
 
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
