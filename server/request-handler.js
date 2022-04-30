@@ -22,7 +22,66 @@ var defaultCorsHeaders = {
 };
 
 var requestHandler = function(request, response) {
-  // Request and Response come from node's http module.
+
+  console.log('Serving request type ' + request.method + ' for url ' + request.url);
+
+  // Standardizing response (outgoing status).
+  var statusCode = 200;
+  var headers = defaultCorsHeaders;
+  headers['Content-Type'] = 'text/plain';
+
+  if (request.method === 'OPTIONS' && request.url === '/classes/messages') {
+    //returning header that includes all allowed methods
+    response.writeHead(statusCode, headers);
+    response.end();
+
+  } else if (request.method === 'GET' && request.url === '/classes/messages') {
+    //Returning 200 status code and all stored data
+    headers['Content-Type'] = 'application/json';
+    response.writeHead(statusCode, headers);
+    response.end(JSON.stringify(data));
+
+  } else if (request.method === 'DELETE' && request.url === '/classes/messages') {
+    headers['Content-Type'] = 'application/json';
+    statusCode = 202;
+    response.writeHead(statusCode, headers);
+
+    let body = [];
+    request.on('data', (chunk) => {
+      body.push(chunk);
+    }).on('end', () => {
+      //Parse body which is in JSON format and then adds to data array
+      body = JSON.parse(body);
+    });
+    //When a data management system is added, utilize that instead of resetting data array
+    data = [];
+    //returns JSON string of all data
+    response.end(JSON.stringify(data));
+
+  } else if (request.method === 'POST' && request.url === '/classes/messages') {
+    let body = [];
+    headers['Content-Type'] = 'application/json';
+    request.on('data', (chunk) => {
+      body.push(chunk);
+    }).on('end', () => {
+      //Parse body which is in JSON format and then adds to data array
+      body = JSON.parse(body);
+      data.push(body);
+    });
+    var statusCode = 201;
+    response.writeHead(statusCode, headers);
+    response.end(JSON.stringify(data));
+
+  } else {
+    //Responds 404 if request type invalid
+    statusCode = 404;
+    response.writeHead(statusCode, headers);
+    response.end();
+  }
+};
+
+exports.requestHandler = requestHandler;
+// Request and Response come from node's http module.
   //
   // They include information about both the incoming request, such as
   // headers and URL, and about the outgoing response, such as its status
@@ -36,51 +95,10 @@ var requestHandler = function(request, response) {
   // Adding more logging to your server can be an easy way to get passive
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
-  console.log('Serving request type ' + request.method + ' for url ' + request.url);
-
-  // The outgoing status.
-  var statusCode = 200;
-  var headers = defaultCorsHeaders;
-  headers['Content-Type'] = 'application/json';
-
-  if (request.method === 'GET' && request.url === '/classes/messages') {
-    //headers['Content-Type'] = 'application/json';
-    response.writeHead(statusCode, headers);
-    response.end(JSON.stringify(data));
-
-  } else if (request.method === 'POST' && request.url === '/classes/messages') {
-
-    let body = [];
-
-    request.on('data', (chunk) => {
-      body.push(chunk);
-    }).on('end', () => {
-      body = JSON.parse(body);
-      //body = Buffer.concat(body).toString();
-      data.push(body);
-    });
-    var statusCode = 201;
-    response.writeHead(statusCode, headers);
-    response.end(JSON.stringify(data));
-
-  } else {
-    headers['Content-Type'] = 'text/plain';
-    statusCode = 404;
-    response.writeHead(statusCode, headers);
-    response.end();
-  }
-};
-
-exports.requestHandler = requestHandler;
-
   //If the request is a 'GET' and url matches
   // if (request.method === 'POST' && request.url === '/classes/messages') {
 
   //   //parsesdata from request
-
-
-  //   });
-  // } else
 
 //set response code
   //add data storage to response
@@ -122,5 +140,6 @@ exports.requestHandler = requestHandler;
 //
 // Another way to get around this restriction is to serve you chat
 // client from this domain by setting up static file serving.
+
 
 

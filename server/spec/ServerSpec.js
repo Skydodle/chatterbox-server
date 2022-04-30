@@ -91,4 +91,40 @@ describe('Node Server Request Listener Function', function() {
     expect(res._ended).to.equal(true);
   });
 
+  it('Should answer OPTIONS requests for /classes/messages with a 200 status code', function() {
+    var req = new stubs.request('/classes/messages', 'OPTIONS');
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._headers['access-control-allow-methods']).to.equal('GET, POST, PUT, DELETE, OPTIONS');
+    expect(res._responseCode).to.equal(200);
+    expect(res._ended).to.equal(true);
+  });
+
+  it('Should delete messages that were previously posted', function() {
+    var stubMsg = {
+      username: 'Jono',
+      text: 'Do my bidding!'
+    };
+    var req = new stubs.request('/classes/messages', 'POST', stubMsg);
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(201);
+
+    // Now if we request the log for that room the message we posted should be there:
+    req = new stubs.request('/classes/messages', 'DELETE', stubMsg);
+    res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(202);
+    var messages = JSON.parse(res._data);
+    expect(messages.length).to.equal(0);
+    expect(res._ended).to.equal(true);
+  });
+
+
 });
