@@ -54,15 +54,14 @@ var requestHandler = function(request, response) {
 
     request.on('data', (chunk) => {
       body.push(chunk);
-      debugger;
     }).on('end', () => {
-      body = Buffer.concat(body).toString();
-      debugger;
+      body = JSON.parse(body);
+      //body = Buffer.concat(body).toString();
       data.push(body);
     });
     var statusCode = 201;
     response.writeHead(statusCode, headers);
-    response.end(JSON.stringify(body));
+    response.end(JSON.stringify(data));
 
   } else {
     headers['Content-Type'] = 'text/plain';
@@ -70,9 +69,6 @@ var requestHandler = function(request, response) {
     response.writeHead(statusCode, headers);
     response.end();
   }
-
-
-
 };
 
 exports.requestHandler = requestHandler;
